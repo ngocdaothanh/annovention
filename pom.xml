@@ -21,8 +21,7 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
-    
-    
+
     	<dependency>
 			<groupId>javassist</groupId>
 			<artifactId>javassist</artifactId>
@@ -30,13 +29,6 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/lib/javassist-3.9.0.GA.jar</systemPath>
 		</dependency>
-		
-        <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>persistence-api</artifactId>
-            <version>1.0</version>
-        </dependency>	
-        
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
@@ -47,5 +39,12 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.16</version>
 		</dependency>        	
+
+		<!-- used in the sample usage classes-->
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>persistence-api</artifactId>
+            <version>1.0</version>
+        </dependency>	
   </dependencies>
 </project>
