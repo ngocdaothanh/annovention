@@ -1,0 +1,9 @@
+Difference compared to http://code.google.com/p/annovention/
+* ClasspathDiscoverer has been improved to properly scan all class loaders
+  (based on http://code.google.com/p/reflections)
+* Apache Common Log has been removed
+
+== Using with SBT
+
+val sonatypeSnapshot = "Sonatype Snapshot" at "https://oss.sonatype.org/content/repositories/snapshots"
+val s3m = "tv.cntt" %% "annovention" % "1.0-SNAPSHOT"

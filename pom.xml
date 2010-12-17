@@ -5,7 +5,7 @@
 
   <!-- "Central Sync Requirement" of Sonatype -->
   <modelVersion>4.0.0</modelVersion>
-  <groupId>tv.cntt.annovention</groupId>
+  <groupId>tv.cntt</groupId>
   <artifactId>annovention</artifactId>
   <packaging>jar</packaging>
   <name>annovention</name>
