@@ -128,8 +128,6 @@ public abstract class Discoverer {
 
     /**
      * Finds resources to scan for
-     * 
-     * @return
      */
     public abstract URL[] findResources();
     
