@@ -18,10 +18,10 @@ package com.impetus.annovention;
 /**
  * Basic implementation to skip well-known packages and allow only *.class files
  * 
- * @author animesh.kumar
+ * @author animesh.kumar, ngocdaothanh@gmail.com
  */
 public class FilterImpl implements Filter {
-    public final String[] IGNORED_PACKAGES = {
+    public static final String[] IGNORED_PACKAGES = {
         "java", "javax",
         "sun", "com.sun",
         "apple", "com.apple",
