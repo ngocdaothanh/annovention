@@ -8,7 +8,7 @@
   <artifactId>annovention</artifactId>
   <packaging>jar</packaging>
   <name>annovention</name>
-  <version>1.2</version>
+  <version>1.3-SNAPSHOT</version>
   <description>Java Annotation Discovery Library</description>
   <url>https://github.com/ngocdaothanh/annovention</url>
   <licenses>
