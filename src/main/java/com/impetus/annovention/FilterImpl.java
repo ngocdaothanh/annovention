@@ -21,9 +21,18 @@ package com.impetus.annovention;
  * @author animesh.kumar
  */
 public class FilterImpl implements Filter {
+    public final String[] IGNORED_PACKAGES = {
+        "java", "javax",
+        "sun", "com.sun",
+        "apple", "com.apple",
+        "scalaj", "scala.tools.jline", "org.scala_tools.time",
+        "javassist", "com.impetus.annovention"
+    };
 
-    /** The ignored packages. */
-    private transient String[] ignoredPackages = { "javax", "java", "sun", "com.sun", "javassist"};
+    private String[] ignoredPackages;
+
+    public FilterImpl()                         { this.ignoredPackages = IGNORED_PACKAGES; }
+    public FilterImpl(String[] ignoredPackages) { this.ignoredPackages = ignoredPackages;  }
 
     /* @see com.impetus.annovention.Filter#accepts(java.lang.String) */
     @Override
@@ -39,10 +48,6 @@ public class FilterImpl implements Filter {
         return false;
     }
 
-    /**
-     * @param intf
-     * @return
-     */
     private boolean ignoreScan(String intf) {
         for (String ignored : ignoredPackages) {
             if (intf.startsWith(ignored + ".")) {
@@ -51,5 +56,4 @@ public class FilterImpl implements Filter {
         }
         return false;
     }
-
 }

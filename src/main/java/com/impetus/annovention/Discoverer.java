@@ -135,7 +135,7 @@ public abstract class Discoverer {
     /**
      * that's my buddy! this is where all the discovery starts.
      */
-    public final void discover() {
+    public final void discover(boolean classes, boolean fields, boolean methods, boolean visible, boolean invisible) {
         URL[] resources = findResources();
         for (URL resource : resources) {
             try {
@@ -150,11 +150,11 @@ public abstract class Discoverer {
                             ClassFile classFile = new ClassFile(dstream);
                         
                             // discover class-level annotations
-                            discoverAndIntimateForClassAnnotations (classFile);
+                            if (classes) discoverAndIntimateForClassAnnotations (classFile, visible, invisible);
                             // discover field annotations
-                            discoverAndIntimateForFieldAnnotations (classFile);
+                            if (fields)  discoverAndIntimateForFieldAnnotations (classFile, visible, invisible);
                             // discover method annotations
-                            discoverAndIntimateForMethodAnnotations(classFile);
+                            if (methods) discoverAndIntimateForMethodAnnotations(classFile, visible, invisible);
                         } finally {
                              dstream.close();
                              is.close();
@@ -173,17 +173,17 @@ public abstract class Discoverer {
      * 
      * @param classFile
      */
-    private void discoverAndIntimateForClassAnnotations (ClassFile classFile) {
+    private void discoverAndIntimateForClassAnnotations (ClassFile classFile, boolean visible, boolean invisible) {
         Set<Annotation> annotations = new HashSet<Annotation>();
-        
-        AnnotationsAttribute visible     = (AnnotationsAttribute) classFile.getAttribute(AnnotationsAttribute.visibleTag);
-        AnnotationsAttribute invisible     = (AnnotationsAttribute) classFile.getAttribute(AnnotationsAttribute.invisibleTag);
 
-        if (visible != null) {
-            annotations.addAll(Arrays.asList(visible.getAnnotations()));
+        if (visible) {
+            AnnotationsAttribute visibleA = (AnnotationsAttribute) classFile.getAttribute(AnnotationsAttribute.visibleTag);
+            if (visibleA != null) annotations.addAll(Arrays.asList(visibleA.getAnnotations()));
         }
-        if (invisible != null) {
-            annotations.addAll(Arrays.asList(invisible.getAnnotations()));
+
+        if (invisible) {
+            AnnotationsAttribute invisibleA = (AnnotationsAttribute) classFile.getAttribute(AnnotationsAttribute.invisibleTag);
+            if (invisibleA != null) annotations.addAll(Arrays.asList(invisibleA.getAnnotations()));
         }
         
         // now tell listeners
@@ -204,7 +204,7 @@ public abstract class Discoverer {
      * 
      * @param classFile
      */
-    private void discoverAndIntimateForFieldAnnotations (ClassFile classFile) {
+    private void discoverAndIntimateForFieldAnnotations (ClassFile classFile, boolean visible, boolean invisible) {
         @SuppressWarnings("unchecked") 
         List<FieldInfo> fields = classFile.getFields();
         if (fields == null) {
@@ -213,15 +213,15 @@ public abstract class Discoverer {
         
         for (FieldInfo fieldInfo : fields) {
             Set<Annotation> annotations = new HashSet<Annotation>();
-            
-            AnnotationsAttribute visible = (AnnotationsAttribute) fieldInfo.getAttribute(AnnotationsAttribute.visibleTag);
-            AnnotationsAttribute invisible = (AnnotationsAttribute) fieldInfo.getAttribute(AnnotationsAttribute.invisibleTag);
 
-            if (visible != null) {
-                annotations.addAll(Arrays.asList(visible.getAnnotations()));
+            if (visible) {
+                AnnotationsAttribute visibleA = (AnnotationsAttribute) fieldInfo.getAttribute(AnnotationsAttribute.visibleTag);
+                if (visibleA != null) annotations.addAll(Arrays.asList(visibleA.getAnnotations()));
             }
-            if (invisible != null) {
-                annotations.addAll(Arrays.asList(invisible.getAnnotations()));
+
+            if (invisible) {
+                AnnotationsAttribute invisibleA = (AnnotationsAttribute) fieldInfo.getAttribute(AnnotationsAttribute.invisibleTag);
+                if (invisibleA != null) annotations.addAll(Arrays.asList(invisibleA.getAnnotations()));
             }
             
             // now tell listeners
@@ -243,7 +243,7 @@ public abstract class Discoverer {
      * 
      * @param classFile
      */
-    private void discoverAndIntimateForMethodAnnotations(ClassFile classFile) {
+    private void discoverAndIntimateForMethodAnnotations(ClassFile classFile, boolean visible, boolean invisible) {
         @SuppressWarnings("unchecked") 
         List<MethodInfo> methods = classFile.getMethods();
         if (methods == null) {
@@ -252,24 +252,24 @@ public abstract class Discoverer {
         
         for (MethodInfo methodInfo : methods) {
             Set<Annotation> annotations = new HashSet<Annotation>();
-            
-            AnnotationsAttribute visible     = (AnnotationsAttribute) methodInfo.getAttribute(AnnotationsAttribute.visibleTag);
-            AnnotationsAttribute invisible     = (AnnotationsAttribute) methodInfo.getAttribute(AnnotationsAttribute.invisibleTag);
-            
-            if (visible != null) {
-                annotations.addAll(Arrays.asList(visible.getAnnotations()));
+
+            if (visible) {
+                AnnotationsAttribute visibleA = (AnnotationsAttribute) methodInfo.getAttribute(AnnotationsAttribute.visibleTag);
+                if (visibleA != null) annotations.addAll(Arrays.asList(visibleA.getAnnotations()));
             }
-            if (invisible != null) {
-                annotations.addAll(Arrays.asList(invisible.getAnnotations()));
+
+            if (invisible) {
+                AnnotationsAttribute invisibleA = (AnnotationsAttribute) methodInfo.getAttribute(AnnotationsAttribute.invisibleTag);
+                if (invisibleA != null) annotations.addAll(Arrays.asList(invisibleA.getAnnotations()));
             }
-            
+
             // now tell listeners
             for (Annotation annotation : annotations) {
                 Set<MethodAnnotationDiscoveryListener> listeners = methodAnnotationListeners.get(annotation.getTypeName());
                 if (null == listeners) {
                     continue;
                 }
-                
+
                 for (MethodAnnotationDiscoveryListener listener : listeners) {
                     listener.discovered(classFile.getName(), methodInfo.getName(), annotation.getTypeName());
                 }

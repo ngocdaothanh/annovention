@@ -1,4 +1,6 @@
 Difference compared to http://code.google.com/p/annovention/
+* Discoverer can be specified to scan only classes, fields, or methods;
+  and to scan only runtime visible or invisible annotations
 * ClasspathDiscoverer has been improved to properly scan all class loaders
   (based on http://code.google.com/p/reflections)
 * Apache Common Log has been removed
