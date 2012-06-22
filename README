@@ -9,10 +9,10 @@ Difference compared to http://code.google.com/p/annovention/
 
 To use the stable version:
 
-libraryDependencies += "tv.cntt" % "annovention" % "1.0"
+libraryDependencies += "tv.cntt" % "annovention" % "1.2"
 
 To use the SNAPSHOT version:
 
 resolvers += "Sonatype Snapshot" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-libraryDependencies += "tv.cntt" % "annovention" % "1.1-SNAPSHOT"
+libraryDependencies += "tv.cntt" % "annovention" % "1.3-SNAPSHOT"
