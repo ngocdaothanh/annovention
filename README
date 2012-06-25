@@ -3,7 +3,7 @@ Difference compared to http://code.google.com/p/annovention/
   and to scan only runtime visible or invisible annotations
 * ClasspathDiscoverer has been improved to properly scan all class loaders
   (based on http://code.google.com/p/reflections)
-* Apache Common Log has been removed
+* Apache Common Log has been removed; the only dependency is Javassist
 
 == Using with SBT
 
