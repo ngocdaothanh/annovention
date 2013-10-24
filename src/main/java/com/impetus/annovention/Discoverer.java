@@ -50,15 +50,15 @@ import com.impetus.annovention.resource.ResourceIterator;
 public abstract class Discoverer {
 
     /** map to hold ClassAnnotation listeners */
-    private static final Map<String, Set<ClassAnnotationDiscoveryListener>> classAnnotationListeners = 
+    private final Map<String, Set<ClassAnnotationDiscoveryListener>> classAnnotationListeners = 
         new HashMap<String, Set<ClassAnnotationDiscoveryListener>>();
     
     /** map to hold FieldAnnotation listeners */
-    private static final Map<String, Set<FieldAnnotationDiscoveryListener>> fieldAnnotationListeners = 
+    private final Map<String, Set<FieldAnnotationDiscoveryListener>> fieldAnnotationListeners = 
         new HashMap<String, Set<FieldAnnotationDiscoveryListener>>();
     
     /** map to hold MethodAnnotation listeners */
-    private static final Map<String, Set<MethodAnnotationDiscoveryListener>> methodAnnotationListeners = 
+    private final Map<String, Set<MethodAnnotationDiscoveryListener>> methodAnnotationListeners = 
         new HashMap<String, Set<MethodAnnotationDiscoveryListener>>();
     
     /**
