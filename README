@@ -1,18 +1,26 @@
-Difference compared to http://code.google.com/p/annovention/
+A fork of http://code.google.com/p/annovention/ that fixes bugs and
+removes Apache log dependency to keep the library lightweight.
+
+Difference compared to the original Annovention library:
 * Discoverer can be specified to scan only classes, fields, or methods;
   and to scan only runtime visible or invisible annotations
 * ClasspathDiscoverer has been improved to properly scan all class loaders
   (based on http://code.google.com/p/reflections)
 * Apache Common Log has been removed; the only dependency is Javassist
 
+If you use Scala, don't forget to check out Sclasner:
+https://github.com/ngocdaothanh/sclasner
+
+== Using with Maven
+
+::
+
+  <dependency>
+    <groupId>tv.cntt</groupId>
+    <artifactId>annovention</artifactId>
+    <version>1.3</version>
+  </dependency>
+
 == Using with SBT
 
-To use the stable version:
-
 libraryDependencies += "tv.cntt" % "annovention" % "1.3"
-
-To use the SNAPSHOT version:
-
-resolvers += "Sonatype Snapshot" at "https://oss.sonatype.org/content/repositories/snapshots"
-
-libraryDependencies += "tv.cntt" % "annovention" % "1.4-SNAPSHOT"
