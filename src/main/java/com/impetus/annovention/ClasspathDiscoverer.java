@@ -26,7 +26,7 @@ import java.util.StringTokenizer;
 
 /**
  * The Class ClasspathReader.
- * 
+ *
  * @author animesh.kumar
  */
 public class ClasspathDiscoverer extends Discoverer {
@@ -43,10 +43,9 @@ public class ClasspathDiscoverer extends Discoverer {
 
     /**
      * Uses java.class.path system-property to fetch URLs
-     * 
+     *
      * @return the URL[]
      */
-    @SuppressWarnings("deprecation")
     @Override
     public final URL[] findResources() {
         URL[] ret = getUrlsForCurrentClasspath();
@@ -83,7 +82,7 @@ public class ClasspathDiscoverer extends Discoverer {
         }
         return list.toArray(new URL[list.size()]);
     }
-    
+
     private URL[] getUrlsForSystemClasspath() {
         List<URL> list = new ArrayList<URL>();
         String classpath = System.getProperty("java.class.path");
@@ -98,7 +97,7 @@ public class ClasspathDiscoverer extends Discoverer {
                 throw new RuntimeException(
                         "File in java.class.path does not exist: " + fp);
             try {
-                list.add(fp.toURL());
+                list.add(fp.toURI().toURL());
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
