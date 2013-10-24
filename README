@@ -18,9 +18,9 @@ https://github.com/ngocdaothanh/sclasner
   <dependency>
     <groupId>tv.cntt</groupId>
     <artifactId>annovention</artifactId>
-    <version>1.3</version>
+    <version>1.4</version>
   </dependency>
 
 == Using with SBT
 
-libraryDependencies += "tv.cntt" % "annovention" % "1.3"
+libraryDependencies += "tv.cntt" % "annovention" % "1.4"
