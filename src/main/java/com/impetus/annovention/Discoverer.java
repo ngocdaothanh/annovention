@@ -36,31 +36,46 @@ import javassist.bytecode.MethodInfo;
 import javassist.bytecode.annotation.Annotation;
 
 import com.impetus.annovention.listener.ClassAnnotationDiscoveryListener;
+import com.impetus.annovention.listener.ClassAnnotationObjectDiscoveryListener;
 import com.impetus.annovention.listener.FieldAnnotationDiscoveryListener;
+import com.impetus.annovention.listener.FieldAnnotationObjectDiscoveryListener;
 import com.impetus.annovention.listener.MethodAnnotationDiscoveryListener;
+import com.impetus.annovention.listener.MethodAnnotationObjectDiscoveryListener;
 import com.impetus.annovention.resource.ClassFileIterator;
 import com.impetus.annovention.resource.JarFileIterator;
 import com.impetus.annovention.resource.ResourceIterator;
 
 /**
  * Base annotation discoverer.
- * 
+ *
  * @author animesh.kumar
  */
 public abstract class Discoverer {
 
     /** map to hold ClassAnnotation listeners */
-    private final Map<String, Set<ClassAnnotationDiscoveryListener>> classAnnotationListeners = 
+    private final Map<String, Set<ClassAnnotationDiscoveryListener>> classAnnotationListeners =
         new HashMap<String, Set<ClassAnnotationDiscoveryListener>>();
-    
+
     /** map to hold FieldAnnotation listeners */
-    private final Map<String, Set<FieldAnnotationDiscoveryListener>> fieldAnnotationListeners = 
+    private final Map<String, Set<FieldAnnotationDiscoveryListener>> fieldAnnotationListeners =
         new HashMap<String, Set<FieldAnnotationDiscoveryListener>>();
-    
+
     /** map to hold MethodAnnotation listeners */
-    private final Map<String, Set<MethodAnnotationDiscoveryListener>> methodAnnotationListeners = 
+    private final Map<String, Set<MethodAnnotationDiscoveryListener>> methodAnnotationListeners =
         new HashMap<String, Set<MethodAnnotationDiscoveryListener>>();
-    
+
+    /** map to hold ClassAnnotationObject listeners */
+    private static final Map<String, Set<ClassAnnotationObjectDiscoveryListener>> classAnnotationObjectListeners =
+    	new HashMap<String, Set<ClassAnnotationObjectDiscoveryListener>>();
+
+    /** map to hold FieldAnnotationObject listeners */
+    private static final Map<String, Set<FieldAnnotationObjectDiscoveryListener>> fieldAnnotationObjectListeners =
+    	new HashMap<String, Set<FieldAnnotationObjectDiscoveryListener>>();
+
+    /** map to hold MethodAnnotationObject listeners */
+    private static final Map<String, Set<MethodAnnotationObjectDiscoveryListener>> methodAnnotationObjectListeners =
+    	new HashMap<String, Set<MethodAnnotationObjectDiscoveryListener>>();
+
     /**
      * Instantiates a new Discoverer.
      */
@@ -69,16 +84,16 @@ public abstract class Discoverer {
 
     /**
      * Adds ClassAnnotationDiscoveryListener
-     * 
+     *
      * @param listener
      */
     public final void addAnnotationListener (ClassAnnotationDiscoveryListener listener) {
         addAnnotationListener (classAnnotationListeners, listener, listener.supportedAnnotations());
     }
-    
+
     /**
      * Adds FieldAnnotationDiscoveryListener
-     * 
+     *
      * @param listener
      */
     public final void addAnnotationListener (FieldAnnotationDiscoveryListener listener) {
@@ -87,16 +102,43 @@ public abstract class Discoverer {
 
     /**
      * Adds MethodAnnotationDiscoveryListener
-     * 
+     *
      * @param listener
      */
     public final void addAnnotationListener (MethodAnnotationDiscoveryListener listener) {
         addAnnotationListener (methodAnnotationListeners, listener, listener.supportedAnnotations());
     }
-    
+
+    /**
+     * Adds ClassAnnotationObjectDiscoveryListener
+     *
+     * @param listener
+     */
+    public final void addAnnotationListener (ClassAnnotationObjectDiscoveryListener listener) {
+    	addAnnotationListener (classAnnotationObjectListeners, listener, listener.supportedAnnotations());
+    }
+
+    /**
+     * Adds FieldAnnotationObjectDiscoveryListener
+     *
+     * @param listener
+     */
+    public final void addAnnotationListener (FieldAnnotationObjectDiscoveryListener listener) {
+    	addAnnotationListener (fieldAnnotationObjectListeners, listener, listener.supportedAnnotations());
+    }
+
+    /**
+     * Adds MethodAnnotationObjectDiscoveryListener
+     *
+     * @param listener
+     */
+    public final void addAnnotationListener (MethodAnnotationObjectDiscoveryListener listener) {
+    	addAnnotationListener (methodAnnotationObjectListeners, listener, listener.supportedAnnotations());
+    }
+
     /**
      * Helper class to find supported annotations of a listener and register them
-     * 
+     *
      * @param <L>
      * @param map
      * @param listener
@@ -108,7 +150,7 @@ public abstract class Discoverer {
         if (null == annotations || annotations.length == 0) {
             throw new IllegalArgumentException(listener.getClass() + " has no supporting Annotations. Check method supportedAnnotations");
         }
-        
+
         for (String annotation : annotations) {
             Set<L> listeners = map.get(annotation);
             if (null == listeners) {
@@ -118,10 +160,10 @@ public abstract class Discoverer {
             listeners.add(listener);
         }
     }
-    
+
     /**
      * Gets the filter implementation.
-     * 
+     *
      * @return the filter
      */
     public abstract Filter getFilter();
@@ -130,8 +172,8 @@ public abstract class Discoverer {
      * Finds resources to scan for
      */
     public abstract URL[] findResources();
-    
-    
+
+
     /**
      * that's my buddy! this is where all the discovery starts.
      */
@@ -148,7 +190,7 @@ public abstract class Discoverer {
                         try {
                             // get java-assist class file
                             ClassFile classFile = new ClassFile(dstream);
-                        
+
                             // discover class-level annotations
                             if (classes) discoverAndIntimateForClassAnnotations (classFile, visible, invisible);
                             // discover field annotations
@@ -167,10 +209,10 @@ public abstract class Discoverer {
             }
         }
     }
-    
+
     /**
      * Discovers Class Annotations
-     * 
+     *
      * @param classFile
      */
     private void discoverAndIntimateForClassAnnotations (ClassFile classFile, boolean visible, boolean invisible) {
@@ -185,32 +227,38 @@ public abstract class Discoverer {
             AnnotationsAttribute invisibleA = (AnnotationsAttribute) classFile.getAttribute(AnnotationsAttribute.invisibleTag);
             if (invisibleA != null) annotations.addAll(Arrays.asList(invisibleA.getAnnotations()));
         }
-        
+
         // now tell listeners
         for (Annotation annotation : annotations) {
-            Set<ClassAnnotationDiscoveryListener> listeners = classAnnotationListeners.get(annotation.getTypeName());
-            if (null == listeners) {
-                continue;
-            }
-
-            for (ClassAnnotationDiscoveryListener listener : listeners) {
-                listener.discovered(classFile.getName(), annotation.getTypeName());
-            }
+        	// String versions of listeners
+			Set<ClassAnnotationDiscoveryListener> listeners = classAnnotationListeners.get(annotation.getTypeName());
+			if (null != listeners) {
+    			for (ClassAnnotationDiscoveryListener listener : listeners) {
+    				listener.discovered(classFile.getName(), annotation.getTypeName());
+    			}
+			}
+			// Object versions of listeners
+			Set<ClassAnnotationObjectDiscoveryListener> olisteners = classAnnotationObjectListeners.get(annotation.getTypeName());
+			if (null != olisteners) {
+				for (ClassAnnotationObjectDiscoveryListener listener : olisteners) {
+					listener.discovered(classFile, annotation);
+				}
+			}
         }
     }
-    
+
     /**
      * Discovers Field Annotations
-     * 
+     *
      * @param classFile
      */
     private void discoverAndIntimateForFieldAnnotations (ClassFile classFile, boolean visible, boolean invisible) {
-        @SuppressWarnings("unchecked") 
+        @SuppressWarnings("unchecked")
         List<FieldInfo> fields = classFile.getFields();
         if (fields == null) {
             return;
         }
-        
+
         for (FieldInfo fieldInfo : fields) {
             Set<Annotation> annotations = new HashSet<Annotation>();
 
@@ -223,33 +271,39 @@ public abstract class Discoverer {
                 AnnotationsAttribute invisibleA = (AnnotationsAttribute) fieldInfo.getAttribute(AnnotationsAttribute.invisibleTag);
                 if (invisibleA != null) annotations.addAll(Arrays.asList(invisibleA.getAnnotations()));
             }
-            
+
             // now tell listeners
             for (Annotation annotation : annotations) {
-                Set<FieldAnnotationDiscoveryListener> listeners = fieldAnnotationListeners.get(annotation.getTypeName());
-                if (null == listeners) {
-                    continue;
-                }
-                
-                for (FieldAnnotationDiscoveryListener listener : listeners) {
-                    listener.discovered(classFile.getName(), fieldInfo.getName(), annotation.getTypeName());
-                }
+            	// String versions of listeners
+				Set<FieldAnnotationDiscoveryListener> listeners = fieldAnnotationListeners.get(annotation.getTypeName());
+				if (null != listeners) {
+					for (FieldAnnotationDiscoveryListener listener : listeners) {
+						listener.discovered(classFile.getName(), fieldInfo.getName(), annotation.getTypeName());
+					}
+				}
+				// Object versions of listeners
+				Set<FieldAnnotationObjectDiscoveryListener> olisteners = fieldAnnotationObjectListeners.get(annotation.getTypeName());
+				if (null != olisteners) {
+					for (FieldAnnotationObjectDiscoveryListener listener : olisteners) {
+						listener.discovered(classFile, fieldInfo, annotation);
+					}
+				}
             }
         }
     }
-    
+
     /**
      * Discovers Method Annotations
-     * 
+     *
      * @param classFile
      */
     private void discoverAndIntimateForMethodAnnotations(ClassFile classFile, boolean visible, boolean invisible) {
-        @SuppressWarnings("unchecked") 
+        @SuppressWarnings("unchecked")
         List<MethodInfo> methods = classFile.getMethods();
         if (methods == null) {
             return;
         }
-        
+
         for (MethodInfo methodInfo : methods) {
             Set<Annotation> annotations = new HashSet<Annotation>();
 
@@ -265,22 +319,28 @@ public abstract class Discoverer {
 
             // now tell listeners
             for (Annotation annotation : annotations) {
-                Set<MethodAnnotationDiscoveryListener> listeners = methodAnnotationListeners.get(annotation.getTypeName());
-                if (null == listeners) {
-                    continue;
-                }
-
-                for (MethodAnnotationDiscoveryListener listener : listeners) {
-                    listener.discovered(classFile.getName(), methodInfo.getName(), annotation.getTypeName());
-                }
+            	// String versions of listeners
+				Set<MethodAnnotationDiscoveryListener> listeners = methodAnnotationListeners.get(annotation.getTypeName());
+				if (null != listeners) {
+					for (MethodAnnotationDiscoveryListener listener : listeners) {
+						listener.discovered(classFile.getName(), methodInfo.getName(), annotation.getTypeName());
+					}
+				}
+				// Object versions of listeners
+				Set<MethodAnnotationObjectDiscoveryListener> olisteners = methodAnnotationObjectListeners.get(annotation.getTypeName());
+				if (null != olisteners) {
+					for (MethodAnnotationObjectDiscoveryListener listener : olisteners) {
+						listener.discovered(classFile, methodInfo, annotation);
+					}
+				}
             }
-        }    
+        }
     }
 
 
     /**
      * Gets the Resource iterator for URL with Filter.
-     * 
+     *
      * @param url
      * @param filter
      * @return
