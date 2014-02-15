@@ -1,7 +1,8 @@
-A fork of http://code.google.com/p/annovention/ that fixes bugs and
+This is a fork of http://code.google.com/p/annovention/ that fixes bugs and
 removes Apache log dependency to keep the library lightweight.
 
-Difference compared to the original Annovention library:
+Differences compared to the original Annovention library:
+
 * Discoverer can be specified to scan only classes, fields, or methods;
   and to scan only runtime visible or invisible annotations
 * ClasspathDiscoverer has been improved to properly scan all class loaders
@@ -10,10 +11,12 @@ Difference compared to the original Annovention library:
 * 2014-02-14 - dbennett455 - New listeners added that accept the Javassist
   objects for access to annotation parameters and other info.
 
-If you use Scala, see also Sclasner:
-https://github.com/ngocdaothanh/sclasner
+See `Javadoc <http://ngocdaothanh.github.io/annovention/>`_.
 
-== Using with Maven
+If you use Scala, see also `Sclasner <https://github.com/ngocdaothanh/sclasner>`_.
+
+Using with Maven
+----------------
 
 ::
 
@@ -23,6 +26,9 @@ https://github.com/ngocdaothanh/sclasner
     <version>1.5</version>
   </dependency>
 
-== Using with SBT
+Using with SBT
+--------------
 
-libraryDependencies += "tv.cntt" % "annovention" % "1.5"
+::
+
+  libraryDependencies += "tv.cntt" % "annovention" % "1.5"
