@@ -2,7 +2,7 @@ organization := "tv.cntt"
 
 name := "annovention"
 
-version := "1.5-SNAPSHOT"
+version := "1.6-SNAPSHOT"
 
 autoScalaLibrary := false
 

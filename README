@@ -7,10 +7,10 @@ Difference compared to the original Annovention library:
 * ClasspathDiscoverer has been improved to properly scan all class loaders
   (based on http://code.google.com/p/reflections)
 * Apache Common Log has been removed; the only dependency is Javassist
-* 2014-02-14 - dbennett455 - New listeners added that accept the Javassit 
+* 2014-02-14 - dbennett455 - New listeners added that accept the Javassist
   objects for access to annotation parameters and other info.
 
-If you use Scala, don't forget to check out Sclasner:
+If you use Scala, see also Sclasner:
 https://github.com/ngocdaothanh/sclasner
 
 == Using with Maven
@@ -20,9 +20,9 @@ https://github.com/ngocdaothanh/sclasner
   <dependency>
     <groupId>tv.cntt</groupId>
     <artifactId>annovention</artifactId>
-    <version>1.4</version>
+    <version>1.5</version>
   </dependency>
 
 == Using with SBT
 
-libraryDependencies += "tv.cntt" % "annovention" % "1.4"
+libraryDependencies += "tv.cntt" % "annovention" % "1.5"
