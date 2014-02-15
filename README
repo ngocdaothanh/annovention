@@ -7,6 +7,8 @@ Difference compared to the original Annovention library:
 * ClasspathDiscoverer has been improved to properly scan all class loaders
   (based on http://code.google.com/p/reflections)
 * Apache Common Log has been removed; the only dependency is Javassist
+* 2014-02-14 - dbennett455 - New listeners added that accept the Javassit 
+  objects for access to annotation parameters and other info.
 
 If you use Scala, don't forget to check out Sclasner:
 https://github.com/ngocdaothanh/sclasner
