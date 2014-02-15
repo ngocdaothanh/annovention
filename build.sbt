@@ -10,6 +10,8 @@ crossPaths := false
 
 javacOptions ++= Seq("-source", "1.5", "-target", "1.5", "-Xlint:deprecation")
 
+javacOptions in doc := Seq("-source", "1.5")
+
 libraryDependencies += "org.javassist" % "javassist" % "3.18.1-GA"
 
 //------------------------------------------------------------------------------
