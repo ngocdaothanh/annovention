@@ -41,9 +41,13 @@ import com.impetus.annovention.listener.FieldAnnotationDiscoveryListener;
 import com.impetus.annovention.listener.FieldAnnotationObjectDiscoveryListener;
 import com.impetus.annovention.listener.MethodAnnotationDiscoveryListener;
 import com.impetus.annovention.listener.MethodAnnotationObjectDiscoveryListener;
+import com.impetus.annovention.listener.MethodParameterAnnotationDiscoveryListener;
+import com.impetus.annovention.listener.MethodParameterAnnotationObjectDiscoveryListener;
 import com.impetus.annovention.resource.ClassFileIterator;
 import com.impetus.annovention.resource.JarFileIterator;
 import com.impetus.annovention.resource.ResourceIterator;
+import com.impetus.annovention.util.MethodParameter;
+import com.impetus.annovention.util.MethodParameters;
 
 /**
  * Base annotation discoverer.
@@ -64,6 +68,10 @@ public abstract class Discoverer {
     private final Map<String, Set<MethodAnnotationDiscoveryListener>> methodAnnotationListeners =
         new HashMap<String, Set<MethodAnnotationDiscoveryListener>>();
 
+    /** map to hold MethodParameterAnnotation listeners */
+    private final Map<String, Set<MethodParameterAnnotationDiscoveryListener>> methodParameterAnnotationListeners =
+        new HashMap<String, Set<MethodParameterAnnotationDiscoveryListener>>();
+
     /** map to hold ClassAnnotationObject listeners */
     private static final Map<String, Set<ClassAnnotationObjectDiscoveryListener>> classAnnotationObjectListeners =
     	new HashMap<String, Set<ClassAnnotationObjectDiscoveryListener>>();
@@ -75,6 +83,10 @@ public abstract class Discoverer {
     /** map to hold MethodAnnotationObject listeners */
     private static final Map<String, Set<MethodAnnotationObjectDiscoveryListener>> methodAnnotationObjectListeners =
     	new HashMap<String, Set<MethodAnnotationObjectDiscoveryListener>>();
+
+    /** map to hold MethodAnnotationObject listeners */
+    private static final Map<String, Set<MethodParameterAnnotationObjectDiscoveryListener>> methodParameterAnnotationObjectListeners =
+    	new HashMap<String, Set<MethodParameterAnnotationObjectDiscoveryListener>>();
 
     /**
      * Instantiates a new Discoverer.
@@ -110,6 +122,15 @@ public abstract class Discoverer {
     }
 
     /**
+     * Adds MethodParameterAnnotationDiscoveryListener
+     *
+     * @param listener
+     */
+    public final void addAnnotationListener (MethodParameterAnnotationDiscoveryListener listener) {
+        addAnnotationListener (methodParameterAnnotationListeners, listener, listener.supportedAnnotations());
+    }
+
+    /**
      * Adds ClassAnnotationObjectDiscoveryListener
      *
      * @param listener
@@ -134,6 +155,15 @@ public abstract class Discoverer {
      */
     public final void addAnnotationListener (MethodAnnotationObjectDiscoveryListener listener) {
     	addAnnotationListener (methodAnnotationObjectListeners, listener, listener.supportedAnnotations());
+    }
+
+    /**
+     * Adds MethodParameterAnnotationObjectDiscoveryListener
+     *
+     * @param listener
+     */
+    public final void addAnnotationListener (MethodParameterAnnotationObjectDiscoveryListener listener) {
+    	addAnnotationListener (methodParameterAnnotationObjectListeners, listener, listener.supportedAnnotations());
     }
 
     /**
@@ -175,9 +205,16 @@ public abstract class Discoverer {
 
 
     /**
-     * that's my buddy! this is where all the discovery starts.
+     * legacy discover method without parameter annotation scanner
      */
     public final void discover(boolean classes, boolean fields, boolean methods, boolean visible, boolean invisible) {
+    	discover(classes, fields, methods, false, visible, invisible);
+    }
+
+    /**
+     * that's my buddy! this is where all the discovery starts.
+     */
+    public final void discover(boolean classes, boolean fields, boolean methods, boolean parameters, boolean visible, boolean invisible) {
         URL[] resources = findResources();
         for (URL resource : resources) {
             try {
@@ -196,7 +233,7 @@ public abstract class Discoverer {
                             // discover field annotations
                             if (fields)  discoverAndIntimateForFieldAnnotations (classFile, visible, invisible);
                             // discover method annotations
-                            if (methods) discoverAndIntimateForMethodAnnotations(classFile, visible, invisible);
+                            if (methods || parameters) discoverAndIntimateForMethodAnnotations(classFile, methods, parameters, visible, invisible);
                         } finally {
                              dstream.close();
                              is.close();
@@ -297,42 +334,76 @@ public abstract class Discoverer {
      *
      * @param classFile
      */
-    private void discoverAndIntimateForMethodAnnotations(ClassFile classFile, boolean visible, boolean invisible) {
+    private void discoverAndIntimateForMethodAnnotations(ClassFile classFile, boolean methods, boolean parameters, boolean visible, boolean invisible) {
         @SuppressWarnings("unchecked")
-        List<MethodInfo> methods = classFile.getMethods();
-        if (methods == null) {
+        List<MethodInfo> methodInfos = classFile.getMethods();
+
+        if (methodInfos == null) {
             return;
         }
 
-        for (MethodInfo methodInfo : methods) {
-            Set<Annotation> annotations = new HashSet<Annotation>();
+        for (MethodInfo methodInfo : methodInfos) {
 
-            if (visible) {
-                AnnotationsAttribute visibleA = (AnnotationsAttribute) methodInfo.getAttribute(AnnotationsAttribute.visibleTag);
-                if (visibleA != null) annotations.addAll(Arrays.asList(visibleA.getAnnotations()));
-            }
+        	// if method annotations were requested
+        	if (methods) {
 
-            if (invisible) {
-                AnnotationsAttribute invisibleA = (AnnotationsAttribute) methodInfo.getAttribute(AnnotationsAttribute.invisibleTag);
-                if (invisibleA != null) annotations.addAll(Arrays.asList(invisibleA.getAnnotations()));
-            }
+                Set<Annotation> annotations = new HashSet<Annotation>();
 
-            // now tell listeners
-            for (Annotation annotation : annotations) {
-            	// String versions of listeners
-				Set<MethodAnnotationDiscoveryListener> listeners = methodAnnotationListeners.get(annotation.getTypeName());
-				if (null != listeners) {
-					for (MethodAnnotationDiscoveryListener listener : listeners) {
-						listener.discovered(classFile.getName(), methodInfo.getName(), annotation.getTypeName());
-					}
-				}
-				// Object versions of listeners
-				Set<MethodAnnotationObjectDiscoveryListener> olisteners = methodAnnotationObjectListeners.get(annotation.getTypeName());
-				if (null != olisteners) {
-					for (MethodAnnotationObjectDiscoveryListener listener : olisteners) {
-						listener.discovered(classFile, methodInfo, annotation);
-					}
-				}
+                if (visible) {
+                    AnnotationsAttribute visibleA = (AnnotationsAttribute) methodInfo.getAttribute(AnnotationsAttribute.visibleTag);
+                    if (visibleA != null) annotations.addAll(Arrays.asList(visibleA.getAnnotations()));
+                }
+
+                if (invisible) {
+                    AnnotationsAttribute invisibleA = (AnnotationsAttribute) methodInfo.getAttribute(AnnotationsAttribute.invisibleTag);
+                    if (invisibleA != null) annotations.addAll(Arrays.asList(invisibleA.getAnnotations()));
+                }
+
+                // now tell method listeners
+                for (Annotation annotation : annotations) {
+                	// String versions of listeners
+    				Set<MethodAnnotationDiscoveryListener> listeners = methodAnnotationListeners.get(annotation.getTypeName());
+    				if (null != listeners) {
+    					for (MethodAnnotationDiscoveryListener listener : listeners) {
+    						listener.discovered(classFile.getName(), methodInfo.getName(), annotation.getTypeName());
+    					}
+    				}
+    				// Object versions of listeners
+    				Set<MethodAnnotationObjectDiscoveryListener> olisteners = methodAnnotationObjectListeners.get(annotation.getTypeName());
+    				if (null != olisteners) {
+    					for (MethodAnnotationObjectDiscoveryListener listener : olisteners) {
+    						listener.discovered(classFile, methodInfo, annotation);
+    					}
+    				}
+                }
+        	}
+
+        	// if parameter annotations were requested
+            if (parameters) {
+                // look at the method - complexity is in util.MethodParameters
+                List<MethodParameter> methodParameters=
+                		MethodParameters.getMethodParameters(methodInfo, visible, invisible);
+                for (MethodParameter methodParameter : methodParameters) {
+                	List<Annotation> annotations=methodParameter.getAnnotations();
+                	if (annotations != null && annotations.size() > 0) for (Annotation annotation : annotations){
+                    	// String versions of listeners
+        				Set<MethodParameterAnnotationDiscoveryListener> listeners = methodParameterAnnotationListeners.get(annotation.getTypeName());
+        				if (null != listeners) {
+        					for (MethodParameterAnnotationDiscoveryListener listener : listeners) {
+        						listener.discovered(classFile.getName(), methodInfo.getName(),
+        								methodParameter.getIndex(), methodParameter.getType(), annotation.getTypeName());
+        					}
+        				}
+        				// Object versions of listeners
+        				Set<MethodParameterAnnotationObjectDiscoveryListener> olisteners = methodParameterAnnotationObjectListeners.get(annotation.getTypeName());
+        				if (null != olisteners) {
+        					for (MethodParameterAnnotationObjectDiscoveryListener listener : olisteners) {
+        						listener.discovered(classFile, methodInfo, methodParameter, annotation);
+        					}
+        				}
+                	}
+
+                }
             }
         }
     }
@@ -373,4 +444,6 @@ public abstract class Discoverer {
             }
         }
     }
+
+
 }
