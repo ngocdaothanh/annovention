@@ -23,7 +23,7 @@ Using with Maven
   <dependency>
     <groupId>tv.cntt</groupId>
     <artifactId>annovention</artifactId>
-    <version>1.5</version>
+    <version>1.6</version>
   </dependency>
 
 Using with SBT
@@ -31,4 +31,4 @@ Using with SBT
 
 ::
 
-  libraryDependencies += "tv.cntt" % "annovention" % "1.5"
+  libraryDependencies += "tv.cntt" % "annovention" % "1.6"
