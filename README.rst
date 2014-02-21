@@ -3,11 +3,12 @@ removes Apache log dependency to keep the library lightweight.
 
 Differences compared to the original Annovention library:
 
+* Compiled with Java 6 instead of Java 5.
 * Discoverer can be specified to scan only classes, fields, or methods;
-  and to scan only runtime visible or invisible annotations
+  and to scan only runtime visible or invisible annotations.
 * ClasspathDiscoverer has been improved to properly scan all class loaders
-  (based on http://code.google.com/p/reflections)
-* Apache Common Log has been removed; the only dependency is Javassist
+  (based on http://code.google.com/p/reflections).
+* Apache Common Log has been removed; the only dependency is Javassist.
 * 2014-02-14 - dbennett455 - New listeners added that accept the Javassist
   objects for access to annotation parameters and other info.
 
@@ -23,7 +24,7 @@ Using with Maven
   <dependency>
     <groupId>tv.cntt</groupId>
     <artifactId>annovention</artifactId>
-    <version>1.6</version>
+    <version>1.7</version>
   </dependency>
 
 Using with SBT
@@ -31,4 +32,4 @@ Using with SBT
 
 ::
 
-  libraryDependencies += "tv.cntt" % "annovention" % "1.6"
+  libraryDependencies += "tv.cntt" % "annovention" % "1.7"
